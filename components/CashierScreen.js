@@ -35,12 +35,14 @@ const CashierScreen = () => {
   useEffect(() => {
     const unsubscribeFoods = db.collection('foods').onSnapshot((snapshot) => {
       const foodItems = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      setFoods(foodItems);
+      const sortedFoods = foodItems.sort((a, b) => a.name.localeCompare(b.name)); // Sortir makanan secara alfabetis
+      setFoods(sortedFoods);
     });
 
     const unsubscribeDrinks = db.collection('drinks').onSnapshot((snapshot) => {
       const drinkItems = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      setDrinks(drinkItems);
+      const sortedDrinks = drinkItems.sort((a, b) => a.name.localeCompare(b.name)); // Sortir minuman secara alfabetis
+      setDrinks(sortedDrinks);
     });
 
     return () => {
@@ -68,6 +70,16 @@ const CashierScreen = () => {
 
   const removeFromCart = (itemId) => {
     setCart((prevCart) => prevCart.filter((item) => item.id !== itemId));
+  };
+
+  const updateQuantity = (itemId, change) => {
+    setCart((prevCart) => {
+      return prevCart.map((item) => 
+        item.id === itemId
+          ? { ...item, quantity: Math.max(item.quantity + change, 1) } // Pastikan kuantitas tidak kurang dari 1
+          : item
+      );
+    });
   };
 
   const calculateTotal = () => {
@@ -140,6 +152,17 @@ const CashierScreen = () => {
     <View style={styles.cartItem}>
       <Text style={styles.cartItemText}>{item.name} x{item.quantity}</Text>
       <Text style={styles.cartItemText}>{formatPrice(item.price * item.quantity)}</Text>
+
+      {/* Tombol untuk mengurangi kuantitas */}
+      <TouchableOpacity onPress={() => updateQuantity(item.id, -1)}>
+        <Text style={styles.quantityButton}>-</Text>
+      </TouchableOpacity>
+
+      {/* Tombol untuk menambah kuantitas */}
+      <TouchableOpacity onPress={() => updateQuantity(item.id, 1)}>
+        <Text style={styles.quantityButton}>+</Text>
+      </TouchableOpacity>
+
       <TouchableOpacity onPress={() => removeFromCart(item.id)}>
         <Text style={styles.removeButton}>Remove</Text>
       </TouchableOpacity>
@@ -148,10 +171,14 @@ const CashierScreen = () => {
 
   const filterItems = (items) => {
     if (!searchQuery) return items;
-    return items.filter((item) =>
-      item.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    // Filter item berdasarkan searchQuery dan urutkan berdasarkan abjad
+    return items
+      .filter((item) =>
+        item.name.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+      .sort((a, b) => a.name.localeCompare(b.name)); // Menambahkan urutan abjad
   };
+  
 
   const sections = [
     {
@@ -194,8 +221,9 @@ const CashierScreen = () => {
         style={styles.list}
       />
 
-      <TouchableOpacity onPress={toggleCart}>
-        <Text style={styles.toggleButton}>{isCartExpanded ? 'Hide Cart' : 'Show Cart'}</Text>
+      {/* Tampilan total sekarang bisa ditekan untuk memunculkan cart */}
+      <TouchableOpacity onPress={toggleCart} style={styles.totalContainer}>
+        <Text style={styles.totalText}>Total: {formatPrice(total)}</Text>
       </TouchableOpacity>
 
       <Animated.View style={[styles.cartListContainer, { height: cartHeight }]}>
@@ -207,12 +235,9 @@ const CashierScreen = () => {
         />
       </Animated.View>
 
-      <View style={styles.totalContainer}>
-        <Text style={styles.totalText}>Total: {formatPrice(total)}</Text>
-        <TouchableOpacity style={styles.checkoutButton} onPress={handleCheckout}>
-          <Text style={styles.checkoutButtonText}>Pay</Text>
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity style={styles.checkoutButton} onPress={handleCheckout}>
+        <Text style={styles.checkoutButtonText}>Pay</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -287,6 +312,15 @@ const styles = StyleSheet.create({
     color: 'red',
     fontSize: 14,
   },
+  quantityButton: {
+    fontSize: 20,
+    color: colors.secondary,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 5,
+    backgroundColor: '#f0f0f0',
+    marginHorizontal: 5,
+  },
   totalContainer: {
     paddingTop: 20,
     borderTopWidth: 1,
@@ -308,12 +342,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
-  },
-  toggleButton: {
-    fontSize: 16,
-    color: colors.secondary,
-    textAlign: 'center',
-    marginVertical: 10,
   },
 });
 

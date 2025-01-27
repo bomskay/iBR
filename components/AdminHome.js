@@ -39,19 +39,22 @@ const AdminHome = () => {
   useEffect(() => {
     const unsubscribeFoods = db.collection('foods').onSnapshot((snapshot) => {
       const foodItems = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data(), category: 'foods' }));
-      setItems(prevItems => [...foodItems, ...prevItems.filter(item => item.category === 'drinks')]);
+      const sortedFoods = foodItems.sort((a, b) => a.name.localeCompare(b.name)); // Sortir makanan
+      setItems(prevItems => [...sortedFoods, ...prevItems.filter(item => item.category === 'drinks')]);
     });
-
+  
     const unsubscribeDrinks = db.collection('drinks').onSnapshot((snapshot) => {
       const drinkItems = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data(), category: 'drinks' }));
-      setItems(prevItems => [...prevItems.filter(item => item.category === 'foods'), ...drinkItems]);
+      const sortedDrinks = drinkItems.sort((a, b) => a.name.localeCompare(b.name)); // Sortir minuman
+      setItems(prevItems => [...prevItems.filter(item => item.category === 'foods'), ...sortedDrinks]);
     });
-
+  
     return () => {
       unsubscribeFoods();
       unsubscribeDrinks();
     };
   }, [db]);
+  
 
   const handleChange = (key, value) => setForm({ ...form, [key]: value });
 

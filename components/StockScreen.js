@@ -32,22 +32,25 @@ const StockScreen = () => {
 
   useEffect(() => {
     const db = firebase.firestore();
-
+  
     const unsubscribeFoods = db.collection('foods').onSnapshot((snapshot) => {
       const foodItems = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      setFoods(foodItems);
+      const sortedFoods = foodItems.sort((a, b) => a.name.localeCompare(b.name)); // Sortir makanan secara alfabetis
+      setFoods(sortedFoods);
     });
-
+  
     const unsubscribeDrinks = db.collection('drinks').onSnapshot((snapshot) => {
       const drinkItems = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      setDrinks(drinkItems);
+      const sortedDrinks = drinkItems.sort((a, b) => a.name.localeCompare(b.name)); // Sortir minuman secara alfabetis
+      setDrinks(sortedDrinks);
     });
-
+  
     return () => {
       unsubscribeFoods();
       unsubscribeDrinks();
     };
   }, []);
+  
 
   const sections = [
     { title: 'Foods', data: foods },
