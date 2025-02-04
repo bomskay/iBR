@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
 import { firebase } from '../firebaseConfig';
 import colors from '../assets/colors';
 import { useNavigation } from '@react-navigation/native';
@@ -62,6 +62,33 @@ const SalesReportScreen = () => {
     return price ? `Rp.${parseInt(price).toLocaleString('id-ID')}` : 'Rp.0';
   };
 
+  const deleteSale = (saleId) => {
+    Alert.alert(
+      'Hapus Penjualan',
+      'Apakah Anda yakin ingin menghapus data penjualan ini?',
+      [
+        {
+          text: 'Batal',
+          style: 'cancel',
+        },
+        {
+          text: 'Hapus',
+          onPress: () => {
+            db.collection('sales')
+              .doc(saleId)
+              .delete()
+              .then(() => {
+                console.log('Penjualan berhasil dihapus');
+              })
+              .catch((error) => {
+                console.error('Error menghapus penjualan: ', error);
+              });
+          },
+        },
+      ]
+    );
+  };
+
   const renderItem = ({ item }) => (
     <View style={styles.card}>
       <View style={styles.textContainer}>
@@ -70,6 +97,12 @@ const SalesReportScreen = () => {
           {item.items.map((i, index) => `${i.name} x${i.quantity}${index < item.items.length - 1 ? ', ' : ''}`)}
         </Text>
       </View>
+      <TouchableOpacity 
+        style={styles.deleteButton}
+        onPress={() => deleteSale(item.id)}
+      >
+        <Text style={styles.deleteButtonText}>Hapus</Text>
+      </TouchableOpacity>
     </View>
   );
 
@@ -118,11 +151,11 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: '#f9f9f9',
-    justifyContent: 'space-between',  // Membuat konten mengisi ruang dengan baik
+    justifyContent: 'space-between',
   },
   list: {
     marginTop: 10,
-    flexGrow: 1,  // Agar FlatList mengisi ruang yang ada
+    flexGrow: 1,
   },
   card: {
     backgroundColor: '#fff',
@@ -130,17 +163,35 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     borderRadius: 5,
     elevation: 2,
+    flexDirection: 'column', // Mengatur card agar konten berada dalam kolom (vertikal)
+    justifyContent: 'flex-start',  // Menjaga konten di atas
   },
   textContainer: {
     justifyContent: 'center',
   },
   totalText: {
-    fontSize: 14,
-    color: colors.secondary,
+    fontSize: 16,
+    fontWeight:'bold',
+    color: 'black',
   },
   itemList: {
     fontSize: 14,
     color: '#666',
+  },
+  deleteButton: {
+    backgroundColor: colors.base,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 10,  // Memberikan jarak di atas tombol
+    alignSelf: 'center',  // Menjaga tombol di tengah card
+  },
+  deleteButtonText: {
+    color: 'red',
+    fontWeight: 'bold',
+    fontSize: 14,
   },
   noDataText: {
     marginTop: 20,
@@ -173,5 +224,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+
 
 export default SalesReportScreen;

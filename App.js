@@ -2,7 +2,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { AntDesign, Ionicons, Octicons } from '@expo/vector-icons'; // Import ikon dari @expo/vector-icons
+import { AntDesign, Ionicons, Octicons, FontAwesome } from '@expo/vector-icons'; // Import ikon dari @expo/vector-icons
 import SignInScreen from './components/SignInScreen';
 import SignUpScreen from './components/SignUpScreen';
 import UserHome from './components/UserHome';
@@ -29,7 +29,7 @@ const UserTabNavigator = () => {
         name="Home"
         component={UserHome}
         options={{
-          tabBarLabel: 'Home',
+          tabBarLabel: 'Beranda',
           tabBarIcon: ({ color, size }) => ( // Tambahkan ikon untuk Home
             <Octicons name="home" color={color} size={size} />
           ),
@@ -74,7 +74,7 @@ const AdminTabNavigator = () => {
         name="Stock"
         component={StockScreen}
         options={{
-          tabBarLabel: 'Stock',
+          tabBarLabel: 'Stok',
           tabBarIcon: ({ color, size }) => ( // Tambahkan ikon untuk Stock
             <Ionicons name="cube" color={color} size={size} />
           ),
@@ -85,7 +85,7 @@ const AdminTabNavigator = () => {
         name="Orders"
         component={OrderScreen} // Tambahkan OrderScreen ke tab navigator admin
         options={{
-          tabBarLabel: 'Orders',
+          tabBarLabel: 'Pesanan',
           tabBarIcon: ({ color, size }) => ( // Tambahkan ikon untuk Orders
             <Ionicons name="cart" color={color} size={size} />
           ),
@@ -96,9 +96,9 @@ const AdminTabNavigator = () => {
         name="Cashier"
         component={CashierScreen} // Tambahkan CashierScreen ke tab navigator admin
         options={{
-          tabBarLabel: 'Cashier',
+          tabBarLabel: 'Kasir',
           tabBarIcon: ({ color, size }) => ( // Tambahkan ikon untuk Cashier
-            <Ionicons name="cart" color={color} size={size} />
+            <FontAwesome name="money" color={color} size={size} />
           ),
           headerShown: true,
         }}
@@ -107,7 +107,7 @@ const AdminTabNavigator = () => {
         name="SalesReport"
         component={SalesReportScreen} // Tambahkan SalesReportScreen ke tab navigator admin
         options={{
-          tabBarLabel: 'Sales Report',
+          tabBarLabel: 'Penjualan',
           tabBarIcon: ({ color, size }) => ( // Tambahkan ikon untuk Sales Report
             <Ionicons name="analytics" color={color} size={size} />
           ),

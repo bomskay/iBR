@@ -89,7 +89,7 @@ const UserHome = () => {
   const addToCart = (item) => {
     const quantity = quantities[item.id] || 0;
     if (quantity === 0) {
-      Alert.alert("Quantity cannot be zero", "Please enter a valid quantity before adding to the cart.");
+      Alert.alert("Tolong Tambahkan Jumlah", "Pemesanan tidak bisa dilakukan apabila jumlahnya 0.");
       return;
     }
 
@@ -112,7 +112,7 @@ const UserHome = () => {
 
   const placeOrder = async () => {
     if (cart.length === 0) {
-      Alert.alert("Cart is empty", "Please add items to your cart before placing an order.");
+      Alert.alert("Keranjang Pesanan Kosong", "Tambahkan menu sebelum melakukan pemesanan.");
       return;
     }
   
@@ -162,12 +162,12 @@ const UserHome = () => {
   
       await batch.commit();
   
-      Alert.alert("Order placed!", "Your order has been placed successfully.");
+      Alert.alert("Pesanan Telah Dibuat!", "Mohon menunggu ya.");
       setCart([]);
       setModalVisible(false);
     } catch (error) {
       console.error("Error placing order:", error);
-      Alert.alert("Error placing order", error.message);
+      Alert.alert("Gagal membuat pesanan", error.message);
     }
   };
   

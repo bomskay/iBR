@@ -7,6 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 const CashierScreen = () => {
   const [foods, setFoods] = useState([]);
   const [drinks, setDrinks] = useState([]);
+  const [tambahan, setTambahan] = useState([]);
   const [cart, setCart] = useState([]);
   const [total, setTotal] = useState(0);
   const [tax, setTax] = useState(0);
@@ -45,9 +46,16 @@ const CashierScreen = () => {
       setDrinks(sortedDrinks);
     });
 
+    const unsubscribeTambahan = db.collection('tambahan').onSnapshot((snapshot) => {
+      const additionItems = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      const sortedTambahan = additionItems.sort((a, b) => a.name.localeCompare(b.name)); // Sortir tambahan secara alfabetis
+      setTambahan(sortedTambahan);
+    });
+
     return () => {
       unsubscribeFoods();
       unsubscribeDrinks();
+      unsubscribeTambahan();
     };
   }, [db]);
 
@@ -55,7 +63,34 @@ const CashierScreen = () => {
     return price ? `Rp.${parseInt(price).toLocaleString('id-ID')}` : 'Rp.0';
   };
 
+  const updateStock = (itemId, quantitySold, collection) => {
+    const db = firebase.firestore();
+  
+    // Periksa apakah collection valid
+    if (!collection || !['foods', 'drinks', 'tambahan'].includes(collection)) {
+      console.error(`Invalid collection type: ${collection}`);
+      return;
+    }
+  
+    // Perbarui stok di koleksi yang relevan
+    db.collection(collection).doc(itemId).update({
+      quantity: firebase.firestore.FieldValue.increment(-quantitySold), // Mengurangi stok
+    })
+    .catch((error) => console.error(`Error updating stock in ${collection}:`, error));
+  };
+  
+
   const addToCart = (item) => {
+    // Tentukan type berdasarkan koleksi item
+    let itemType = '';
+    if (foods.some(food => food.id === item.id)) {
+      itemType = 'foods';
+    } else if (drinks.some(drink => drink.id === item.id)) {
+      itemType = 'drinks';
+    } else if (tambahan.some(addition => addition.id === item.id)) {
+      itemType = 'tambahan';
+    }
+  
     setCart((prevCart) => {
       const existingItem = prevCart.find((cartItem) => cartItem.id === item.id);
       if (existingItem) {
@@ -63,10 +98,11 @@ const CashierScreen = () => {
           cartItem.id === item.id ? { ...cartItem, quantity: cartItem.quantity + 1 } : cartItem
         );
       } else {
-        return [...prevCart, { ...item, quantity: 1 }];
+        return [...prevCart, { ...item, quantity: 1, type: itemType }]; // Pastikan menambahkan 'type'
       }
     });
   };
+  
 
   const removeFromCart = (itemId) => {
     setCart((prevCart) => prevCart.filter((item) => item.id !== itemId));
@@ -81,6 +117,9 @@ const CashierScreen = () => {
       );
     });
   };
+
+  
+  
 
   const calculateTotal = () => {
     const totalWithoutTax = cart.reduce((sum, item) => sum + parseFloat(item.price) * item.quantity, 0);
@@ -97,16 +136,16 @@ const CashierScreen = () => {
 
   const handleCheckout = () => {
     if (cart.length === 0) {
-      Alert.alert('Cart is empty', 'Please add items to the cart before checking out.');
+      Alert.alert('Keranjang Kosong', 'Tambahkan menu sebelum melakukan pembayaran.');
       return;
     }
 
     Alert.alert(
-      'Confirm Payment',
-      `Total: ${formatPrice(total)}\nTax (10%): ${formatPrice(tax)}\nDo you want to proceed?`,
+      'Konfirmasi Pembayaran',
+      `Total: ${formatPrice(total)}\nTax (10%): ${formatPrice(tax)}\nSudah Benar?`,
       [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Confirm', onPress: () => completeCheckout() },
+        { text: 'Batal', style: 'cancel' },
+        { text: 'Sudah Benar', onPress: () => completeCheckout() },
       ],
       { cancelable: false }
     );
@@ -117,20 +156,32 @@ const CashierScreen = () => {
       Alert.alert('Cart is empty', 'Please add items before payment.');
       return;
     }
-
+  
     const saleData = {
       date: new Date().toLocaleDateString(),
       total: total,
       items: cart.map(item => ({ name: item.name, quantity: item.quantity, price: item.price })),
       timestamp: firebase.firestore.FieldValue.serverTimestamp(),
     };
-
+  
+    // Menambahkan transaksi ke koleksi 'sales'
     db.collection('sales').add(saleData)
       .then(() => {
+        // Setelah transaksi berhasil, update stok untuk setiap item yang dibeli
+        cart.forEach((item) => {
+          const collection = item.type; // Tentukan koleksi berdasarkan jenis item (foods, drinks, tambahan)
+          if (!['foods', 'drinks', 'tambahan'].includes(collection)) {
+            console.error(`Invalid collection: ${collection}`);
+            return; // Skip jika koleksi tidak valid
+          }
+          updateStock(item.id, item.quantity, collection); // Mengurangi stok untuk setiap item
+        });
+  
+        // Reset cart dan total setelah checkout
         setCart([]);
         setTotal(0);
         setTax(0);
-        Alert.alert('Success', 'Payment completed and sales recorded!');
+        Alert.alert('Berhasil', 'Pembayaran sudah berhasil dilakukan!');
       })
       .catch((error) => {
         console.error("Error adding sale: ", error);
@@ -164,7 +215,7 @@ const CashierScreen = () => {
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => removeFromCart(item.id)}>
-        <Text style={styles.removeButton}>Remove</Text>
+        <Text style={styles.removeButton}>Hapus</Text>
       </TouchableOpacity>
     </View>
   );
@@ -182,12 +233,16 @@ const CashierScreen = () => {
 
   const sections = [
     {
-      title: 'Foods',
+      title: 'Makanan',
       data: filterItems(foods),
     },
     {
-      title: 'Drinks',
+      title: 'Minuman',
       data: filterItems(drinks),
+    },
+    {
+      title: 'Tambahan',
+      data: filterItems(tambahan),
     },
   ];
 

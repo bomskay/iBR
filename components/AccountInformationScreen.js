@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Alert, FlatList, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Alert, FlatList, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { firebase } from '../firebaseConfig';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Feather';
@@ -86,6 +86,9 @@ const AccountInformationScreen = () => {
           console.error("Error menyimpan ikon pengguna:", error);
         });
       }
+
+      // Feedback sukses mengganti ikon
+      Alert.alert("Berhasil", "Ikon Anda telah diperbarui!");
     }
   };
 
@@ -101,6 +104,7 @@ const AccountInformationScreen = () => {
     return (
       <View style={styles.container}>
         <Text style={styles.loadingText}>Memuat informasi pengguna...</Text>
+        <ActivityIndicator size="large" color={colors.base} style={styles.loadingIndicator} />
       </View>
     );
   }
@@ -126,7 +130,7 @@ const AccountInformationScreen = () => {
 
       <Text style={styles.label}>Pesanan Anda:</Text>
       {orders.length === 0 ? (
-        <Text style={styles.value}>Anda belum memiliki pesanan.</Text>
+        <Text style={styles.value}>Anda belum memiliki pesanan. Yuk, mulai pesan sekarang!</Text>
       ) : (
         <FlatList
           data={orders}
@@ -141,7 +145,7 @@ const AccountInformationScreen = () => {
         />
       )}
 
-      <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+      <TouchableOpacity onPress={handleLogout} style={styles.logoutButton} activeOpacity={0.7}>
         <Icon name="log-out" size={24} color="#fff" />
       </TouchableOpacity>
     </View>
@@ -160,18 +164,19 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     padding: 20,
     backgroundColor: '#ffffff',
-    borderRadius: 10,
-    elevation: 3,
+    borderRadius: 20, // Lebih rounded
+    elevation: 5, // Efek bayangan yang lebih halus
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
   },
   userIcon: {
     width: 100,
     height: 100,
     borderRadius: 50,
     marginBottom: 10,
+    resizeMode: 'cover',
   },
   infoContainer: {
     alignItems: 'center',
@@ -218,6 +223,9 @@ const styles = StyleSheet.create({
   loadingText: {
     fontSize: 16,
     color: '#555',
+  },
+  loadingIndicator: {
+    marginTop: 10,
   },
 });
 

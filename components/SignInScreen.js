@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, TextInput, Button, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator } from 'react-native'; // Import ActivityIndicator
 import { firebase } from '../firebaseConfig';
 import colors from '../assets/colors';
 
@@ -7,12 +7,15 @@ const SignInScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState(null);
+  const [loading, setLoading] = useState(false); // State untuk loading
 
   const handleSignIn = () => {
     if (!email || !password) {
       setErrorMessage('Email dan kata sandi tidak boleh kosong.');
       return;
     }
+
+    setLoading(true); // Aktifkan loading indicator saat proses login dimulai
 
     firebase.auth().signInWithEmailAndPassword(email, password)
       .then(async (userCredential) => {
@@ -27,6 +30,8 @@ const SignInScreen = ({ navigation }) => {
           } else {
             navigation.navigate('UserHome'); // Arahkan ke UserHome jika bukan admin
           }
+        } else {
+          setErrorMessage('Data pengguna tidak ditemukan.');
         }
       })
       .catch(error => {
@@ -37,6 +42,9 @@ const SignInScreen = ({ navigation }) => {
         } else {
           setErrorMessage('Email atau password salah. Silakan coba lagi.');
         }
+      })
+      .finally(() => {
+        setLoading(false); // Nonaktifkan loading indicator setelah proses selesai
       });
   };
 
@@ -71,10 +79,16 @@ const SignInScreen = ({ navigation }) => {
         secureTextEntry
       />
       {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
-      <TouchableOpacity style={styles.button} onPress={handleSignIn}>
-        <Text style={styles.buttonText}>Masuk</Text>
-      </TouchableOpacity>
-      
+
+      {/* Menambahkan loading indicator */}
+      {loading ? (
+        <ActivityIndicator size="large" color={colors.secondary} style={styles.loader} />
+      ) : (
+        <TouchableOpacity style={styles.button} onPress={handleSignIn}>
+          <Text style={styles.buttonText}>Masuk</Text>
+        </TouchableOpacity>
+      )}
+
       {/* Tombol untuk navigasi ke Sign Up */}
       <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
         <Text style={styles.signupText}>Belum punya akun? Daftar di sini!</Text>
@@ -128,6 +142,10 @@ const styles = StyleSheet.create({
     color: 'black',
     textAlign: 'center',
   },
+  loader: {
+    marginVertical: 20, // Jarak vertikal untuk loader
+  },
 });
 
 export default SignInScreen;
+  

@@ -1,6 +1,5 @@
-// components/StockScreen.js
 import React, { useEffect, useState } from 'react';
-import { View, Text, SectionList, StyleSheet,Image } from 'react-native';
+import { View, Text, SectionList, StyleSheet, Image } from 'react-native';
 import { firebase } from '../firebaseConfig';
 import { useNavigation } from '@react-navigation/native';
 import colors from '../assets/colors';
@@ -8,22 +7,19 @@ import colors from '../assets/colors';
 const StockScreen = () => {
   const [foods, setFoods] = useState([]);
   const [drinks, setDrinks] = useState([]);
+  const [tambahan, setTambahan] = useState([]);
   const navigation = useNavigation();
 
   useEffect(() => {
     navigation.setOptions({
-      title: 'Ikan Bakar Roong', // Judul header
-      headerStyle: {
-        backgroundColor: colors.base, // Gaya background header
-      },
-      headerTintColor: '#000', // Warna teks header
-      headerTitleStyle: {
-        fontWeight: 'bold',
-      },
+      title: 'Ikan Bakar Roong',
+      headerStyle: { backgroundColor: colors.base },
+      headerTintColor: '#000',
+      headerTitleStyle: { fontWeight: 'bold' },
       headerLeft: () => (
         <Image
-          source={require('../assets/ibricon.png')} // Path menuju logo gambar
-          style={{ width: 50, height: 50, marginLeft: 20, marginRight: -5 }} // Ukuran logo dan jarak ke teks
+          source={require('../assets/ibricon.png')}
+          style={{ width: 50, height: 50, marginLeft: 20, marginRight: -5 }}
           resizeMode="contain"
         />
       ),
@@ -32,35 +28,42 @@ const StockScreen = () => {
 
   useEffect(() => {
     const db = firebase.firestore();
-  
+
     const unsubscribeFoods = db.collection('foods').onSnapshot((snapshot) => {
       const foodItems = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      const sortedFoods = foodItems.sort((a, b) => a.name.localeCompare(b.name)); // Sortir makanan secara alfabetis
+      const sortedFoods = foodItems.sort((a, b) => a.name.localeCompare(b.name));
       setFoods(sortedFoods);
     });
-  
+
     const unsubscribeDrinks = db.collection('drinks').onSnapshot((snapshot) => {
       const drinkItems = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      const sortedDrinks = drinkItems.sort((a, b) => a.name.localeCompare(b.name)); // Sortir minuman secara alfabetis
+      const sortedDrinks = drinkItems.sort((a, b) => a.name.localeCompare(b.name));
       setDrinks(sortedDrinks);
     });
-  
+
+    const unsubscribeTambahan = db.collection('tambahan').onSnapshot((snapshot) => {
+      const additionItems = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      const sortedTambahan = additionItems.sort((a, b) => a.name.localeCompare(b.name));
+      setTambahan(sortedTambahan);
+    });
+
     return () => {
       unsubscribeFoods();
       unsubscribeDrinks();
+      unsubscribeTambahan();
     };
   }, []);
-  
 
   const sections = [
-    { title: 'Foods', data: foods },
-    { title: 'Drinks', data: drinks },
+    { title: 'Makanan', data: foods },
+    { title: 'Minuman', data: drinks },
+    { title: 'Tambahan', data: tambahan },
   ];
 
   const renderItem = ({ item }) => (
     <View style={styles.itemContainer}>
       <Text style={styles.itemName}>{item.name}</Text>
-      <Text style={styles.itemStock}>Total Stock: {item.quantity}</Text>
+      <Text style={styles.itemStock}>Total Stok: {item.quantity}</Text>
     </View>
   );
 
@@ -73,7 +76,7 @@ const StockScreen = () => {
         renderSectionHeader={({ section: { title } }) => (
           <Text style={styles.sectionTitle}>{title}</Text>
         )}
-        stickySectionHeadersEnabled={false} // Agar header tidak lengket
+        stickySectionHeadersEnabled={false}
       />
     </View>
   );

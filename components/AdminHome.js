@@ -1,4 +1,3 @@
-// components/AdminHome.js
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, TextInput, Button, Text, FlatList, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
@@ -40,18 +39,25 @@ const AdminHome = () => {
     const unsubscribeFoods = db.collection('foods').onSnapshot((snapshot) => {
       const foodItems = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data(), category: 'foods' }));
       const sortedFoods = foodItems.sort((a, b) => a.name.localeCompare(b.name)); // Sortir makanan
-      setItems(prevItems => [...sortedFoods, ...prevItems.filter(item => item.category === 'drinks')]);
+      setItems(prevItems => [...sortedFoods, ...prevItems.filter(item => item.category === 'drinks' || item.category === 'tambahan')]);
     });
   
     const unsubscribeDrinks = db.collection('drinks').onSnapshot((snapshot) => {
       const drinkItems = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data(), category: 'drinks' }));
       const sortedDrinks = drinkItems.sort((a, b) => a.name.localeCompare(b.name)); // Sortir minuman
-      setItems(prevItems => [...prevItems.filter(item => item.category === 'foods'), ...sortedDrinks]);
+      setItems(prevItems => [...prevItems.filter(item => item.category === 'foods' || item.category === 'tambahan'), ...sortedDrinks]);
+    });
+
+    const unsubscribeTambahan = db.collection('tambahan').onSnapshot((snapshot) => {
+      const tambahanItems = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data(), category: 'tambahan' }));
+      const sortedTambahan = tambahanItems.sort((a, b) => a.name.localeCompare(b.name)); // Sortir tambahan
+      setItems(prevItems => [...prevItems.filter(item => item.category === 'foods' || item.category === 'drinks'), ...sortedTambahan]);
     });
   
     return () => {
       unsubscribeFoods();
       unsubscribeDrinks();
+      unsubscribeTambahan();
     };
   }, [db]);
   
@@ -69,7 +75,7 @@ const AdminHome = () => {
       quantity: parseInt(form.quantity) || 1,
     };
 
-    const collection = form.category === 'drinks' ? 'drinks' : 'foods';
+    const collection = form.category === 'drinks' ? 'drinks' : form.category === 'tambahan' ? 'tambahan' : 'foods';
 
     if (editId) {
       db.collection(collection).doc(editId).update(itemData)
@@ -78,7 +84,7 @@ const AdminHome = () => {
     } else {
       db.collection(collection).add(itemData)
         .then((docRef) => {
-          alert(`Item added with ID: ${docRef.id}`);
+          alert(`Menu berhasil ditambahkan dengan ID: ${docRef.id}`);
           resetForm();
         })
         .catch(console.error);
@@ -92,7 +98,7 @@ const AdminHome = () => {
   };
 
   const handleDelete = (id, category) => {
-    const collection = category === 'drinks' ? 'drinks' : 'foods';
+    const collection = category === 'drinks' ? 'drinks' : category === 'tambahan' ? 'tambahan' : 'foods';
     db.collection(collection).doc(id).delete().catch(console.error);
   };
 
@@ -129,14 +135,22 @@ const AdminHome = () => {
   );
 
   const groupedItems = items.reduce((acc, item) => {
-    const group = acc.find(g => g.title === (item.category === 'foods' ? 'Foods' : 'Drinks'));
+    const group = acc.find(g => g.title === (item.category === 'foods' ? 'Makanan' : item.category === 'drinks' ? 'Minuman' : 'Tambahan'));
     if (group) {
       group.data.push(item);
     } else {
-      acc.push({ title: item.category === 'foods' ? 'Foods' : 'Drinks', data: [item] });
+      acc.push({
+        title: item.category === 'foods' ? 'Makanan' : item.category === 'drinks' ? 'Minuman' : 'Tambahan',
+        data: [item]
+      });
     }
     return acc;
   }, []);
+  
+  groupedItems.sort((a, b) => {
+    const order = ['Makanan', 'Minuman', 'Tambahan'];
+    return order.indexOf(a.title) - order.indexOf(b.title);
+  });
 
   return (
     <View style={styles.container}>
@@ -147,19 +161,19 @@ const AdminHome = () => {
       {isFormVisible && (
         <View style={styles.formContainer}>
           <TextInput
-            placeholder="Name"
+            placeholder="Nama"
             value={form.name}
             onChangeText={(value) => handleChange('name', value)}
             style={styles.smallInput}
           />
           <TextInput
-            placeholder="Description"
+            placeholder="Deskripsi"
             value={form.description}
             onChangeText={(value) => handleChange('description', value)}
             style={styles.smallInput}
           />
           <TextInput
-            placeholder="Price"
+            placeholder="Harga"
             value={form.price}
             onChangeText={(value) => handleChange('price', value)}
             keyboardType="numeric"
@@ -183,8 +197,9 @@ const AdminHome = () => {
             selectedValue={form.category}
             style={styles.smallPicker}
             onValueChange={(value) => handleChange('category', value)}>
-            <Picker.Item label="Foods" value="foods" />
-            <Picker.Item label="Drinks" value="drinks" />
+            <Picker.Item label="Makanan" value="foods" />
+            <Picker.Item label="Minuman" value="drinks" />
+            <Picker.Item label="Tambahan" value="tambahan" />
           </Picker>
 
           {editId ? (
@@ -198,7 +213,7 @@ const AdminHome = () => {
             </View>
           ) : (
             <TouchableOpacity style={styles.addButton} onPress={handleAddOrUpdate}>
-              <Text style={styles.addbuttonText}>Add</Text>
+              <Text style={styles.addbuttonText}>Tambah Menu</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -227,13 +242,13 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingTop: 10,
     backgroundColor: '#f9f9f9',
-  },  
+  },
   toggleButton: {
     fontSize: 16,
     color: colors.secondary,
     textAlign: 'center',
     marginBottom: 10,
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
   formContainer: {
     marginTop: 20, 
@@ -301,7 +316,7 @@ const styles = StyleSheet.create({
   },
   price: {
     fontSize: 14,
-    fontWeight:'bold',
+    fontWeight: 'bold',
     color: colors.secondary,
     marginVertical: 5,
   },
@@ -324,10 +339,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText:{
-    color:'white'
+    color:'white',
   },
   editButton: {
-    color: colors.secondary
+    color: colors.secondary,
   },
   deleteButton: {
     color: 'red',
