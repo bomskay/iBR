@@ -87,7 +87,7 @@ const AccountInformationScreen = () => {
         });
       }
 
-      // Feedback sukses mengganti ikon
+      // feedback sukses mengganti ikon
       Alert.alert("Berhasil", "Ikon Anda telah diperbarui!");
     }
   };
@@ -164,8 +164,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     padding: 20,
     backgroundColor: '#ffffff',
-    borderRadius: 20, // Lebih rounded
-    elevation: 5, // Efek bayangan yang lebih halus
+    borderRadius: 20,
+    elevation: 5,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,

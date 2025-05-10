@@ -15,20 +15,20 @@ const SignInScreen = ({ navigation }) => {
       return;
     }
 
-    setLoading(true); // Aktifkan loading indicator saat proses login dimulai
+    setLoading(true); //loading indicator saat proses login dimulai
 
     firebase.auth().signInWithEmailAndPassword(email, password)
       .then(async (userCredential) => {
         const user = userCredential.user;
 
-        // Mengambil data pengguna dari Firestore
+        // ambil data pengguna dari firestore
         const userDoc = await firebase.firestore().collection('users').doc(user.uid).get();
         if (userDoc.exists) {
           const userData = userDoc.data();
           if (userData.isAdmin) {
-            navigation.navigate('AdminHome'); // Arahkan ke AdminHome jika admin
+            navigation.navigate('AdminHome'); // arahkan ke AdminHome jika admin
           } else {
-            navigation.navigate('UserHome'); // Arahkan ke UserHome jika bukan admin
+            navigation.navigate('UserHome'); // arahkan ke UserHome jika bukan admin
           }
         } else {
           setErrorMessage('Data pengguna tidak ditemukan.');
@@ -44,11 +44,11 @@ const SignInScreen = ({ navigation }) => {
         }
       })
       .finally(() => {
-        setLoading(false); // Nonaktifkan loading indicator setelah proses selesai
+        setLoading(false); // nonaktifkan loading indicator setelah proses selesai
       });
   };
 
-  // Fungsi untuk menghapus pesan kesalahan saat pengguna mulai mengetik
+  // fungsi untuk menghapus pesan kesalahan saat pengguna mulai mengetik
   const clearErrorMessage = () => {
     if (errorMessage) {
       setErrorMessage(null);
@@ -57,16 +57,15 @@ const SignInScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {/* Tambahkan ikon di atas input */}
       <Image
-        source={require('../assets/ibricon.png')} // Ganti dengan nama file ikon Anda
+        source={require('../assets/ibricon.png')} 
         style={styles.icon}
       />
       <TextInput
         placeholder="Email"
         value={email}
         onChangeText={setEmail}
-        onFocus={clearErrorMessage} // Menghapus pesan kesalahan saat fokus
+        onFocus={clearErrorMessage} 
         style={styles.input}
         autoCapitalize="none"
       />
@@ -74,7 +73,7 @@ const SignInScreen = ({ navigation }) => {
         placeholder="Kata Sandi"
         value={password}
         onChangeText={setPassword}
-        onFocus={clearErrorMessage} // Menghapus pesan kesalahan saat fokus
+        onFocus={clearErrorMessage} 
         style={styles.input}
         secureTextEntry
       />
@@ -100,15 +99,15 @@ const SignInScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center', // Pusatkan konten secara vertikal
-    alignItems: 'center', // Pusatkan konten secara horizontal
+    justifyContent: 'center', 
+    alignItems: 'center', 
     padding: 20,
     backgroundColor: '#f9f9f9',
   },
   icon: {
-    width: 150, // Sesuaikan ukuran ikon
-    height: 150, // Sesuaikan ukuran ikon
-    marginBottom: 30, // Tambahkan jarak di bawah ikon
+    width: 150, 
+    height: 150, 
+    marginBottom: 30, 
   },
   input: {
     height: 50,
@@ -116,22 +115,22 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
     paddingHorizontal: 10,
-    marginBottom: 15, // Tambahkan jarak lebih besar di bawah input
+    marginBottom: 15, 
     backgroundColor: '#f7f7f7',
-    width: '100%', // Buat input mengambil lebar penuh
+    width: '100%', 
   },
   button: {
-    width: '100%', // Mengatur lebar tombol
-    height: 50, // Tinggi tombol
-    backgroundColor: colors.secondary, // Warna latar belakang tombol
-    justifyContent: 'center', // Pusatkan teks secara vertikal
-    alignItems: 'center', // Pusatkan teks secara horizontal
-    borderRadius: 5, // Sudut membulat
-    marginBottom: 15, // Jarak di bawah tombol
+    width: '100%',
+    height: 50,
+    backgroundColor: colors.secondary,
+    justifyContent: 'center', 
+    alignItems: 'center',
+    borderRadius: 5,
+    marginBottom: 15,
   },
   buttonText: {
-    color: '#ffffff', // Warna teks tombol
-    fontSize: 16, // Ukuran font
+    color: '#ffffff',
+    fontSize: 16,
   },
   errorText: {
     color: 'red',
@@ -143,7 +142,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   loader: {
-    marginVertical: 20, // Jarak vertikal untuk loader
+    marginVertical: 20,
   },
 });
 

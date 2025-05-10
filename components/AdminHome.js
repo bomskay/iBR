@@ -68,6 +68,7 @@ const AdminHome = () => {
     return price ? `Rp.${parseInt(price).toLocaleString('id-ID')}` : 'Rp.0';
   };
 
+  // CRUD
   const handleAddOrUpdate = () => {
     const itemData = {
       ...form,
@@ -230,7 +231,7 @@ const AdminHome = () => {
             ListHeaderComponent={() => renderSectionHeader({ section: { title: item.title } })}
           />
         )}
-        nestedScrollEnabled // Add this to enable nested scrolling
+        nestedScrollEnabled
       />
     </View>
   );

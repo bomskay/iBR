@@ -164,20 +164,20 @@ const CashierScreen = () => {
       timestamp: firebase.firestore.FieldValue.serverTimestamp(),
     };
   
-    // Menambahkan transaksi ke koleksi 'sales'
+    // menambahkan transaksi ke koleksi 'sales'
     db.collection('sales').add(saleData)
       .then(() => {
-        // Setelah transaksi berhasil, update stok untuk setiap item yang dibeli
+        // setelah transaksi berhasil, update stok untuk setiap item yang dibeli
         cart.forEach((item) => {
-          const collection = item.type; // Tentukan koleksi berdasarkan jenis item (foods, drinks, tambahan)
+          const collection = item.type; // tentukan koleksi berdasarkan jenis item (foods, drinks, tambahan)
           if (!['foods', 'drinks', 'tambahan'].includes(collection)) {
             console.error(`Invalid collection: ${collection}`);
-            return; // Skip jika koleksi tidak valid
+            return; // skip jika koleksi tidak valid
           }
-          updateStock(item.id, item.quantity, collection); // Mengurangi stok untuk setiap item
+          updateStock(item.id, item.quantity, collection); // mengurangi stok untuk setiap item
         });
   
-        // Reset cart dan total setelah checkout
+        // reset cart dan total setelah checkout
         setCart([]);
         setTotal(0);
         setTax(0);
@@ -221,13 +221,13 @@ const CashierScreen = () => {
   );
 
   const filterItems = (items) => {
-    if (!searchQuery) return items;
-    // Filter item berdasarkan searchQuery dan urutkan berdasarkan abjad
+    if (!searchQuery) return items; // filter item berdasarkan searchQuery
+    
     return items
       .filter((item) =>
         item.name.toLowerCase().includes(searchQuery.toLowerCase())
       )
-      .sort((a, b) => a.name.localeCompare(b.name)); // Menambahkan urutan abjad
+      .sort((a, b) => a.name.localeCompare(b.name)); // menambahkan urutan abjad
   };
   
 

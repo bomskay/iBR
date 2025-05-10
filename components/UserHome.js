@@ -12,7 +12,7 @@ const UserHome = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [quantities, setQuantities] = useState({});
   const [userName, setUserName] = useState("unknown user");
-  const [searchQuery, setSearchQuery] = useState(""); // State untuk kata kunci pencarian
+  const [searchQuery, setSearchQuery] = useState("");
 
   const db = firebase.firestore();
   const navigation = useNavigation();
@@ -40,13 +40,13 @@ const UserHome = () => {
   useEffect(() => {
     const unsubscribeFoods = db.collection('foods').onSnapshot((snapshot) => {
       const foodItems = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      foodItems.sort((a, b) => a.name.localeCompare(b.name)); // Sortir berdasarkan nama
+      foodItems.sort((a, b) => a.name.localeCompare(b.name)); // sortir berdasarkan nama
       setFoods(foodItems);
     });
   
     const unsubscribeDrinks = db.collection('drinks').onSnapshot((snapshot) => {
       const drinkItems = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      drinkItems.sort((a, b) => a.name.localeCompare(b.name)); // Sortir berdasarkan nama
+      drinkItems.sort((a, b) => a.name.localeCompare(b.name));
       setDrinks(drinkItems);
     });
   
@@ -75,10 +75,10 @@ const UserHome = () => {
     React.useCallback(() => {
       const onBackPress = () => true;
       BackHandler.addEventListener('hardwareBackPress', onBackPress);
-      return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+      return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress); //supaya nd bisa kluar dgan cara back
     }, [])
   );
-
+  // fitur pencarian
   const filteredFoods = foods.filter((item) => item.name.toLowerCase().includes(searchQuery.toLowerCase()));
   const filteredDrinks = drinks.filter((item) => item.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
@@ -261,7 +261,6 @@ const UserHome = () => {
         </TouchableOpacity>
       </TouchableOpacity>
 
-      {/* Display Foods and Drinks in One FlatList */}
       <FlatList
         data={[{ title: 'Makanan', data: filteredFoods }, { title: 'Minuman', data: filteredDrinks }]}
         keyExtractor={(item) => item.title}
@@ -280,7 +279,7 @@ const UserHome = () => {
         )}
       />
 
-      {/* Modal for Cart */}
+      {/* Modal for Cart */} 
       <Modal
         animationType="slide"
         transparent={true}

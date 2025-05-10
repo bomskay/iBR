@@ -24,21 +24,21 @@ const SignUpScreen = ({ navigation }) => {
       .then(async (userCredential) => {
         const user = userCredential.user;
 
-        // Menyimpan informasi pengguna ke Firestore
+        // simpan info pengguna ke firestore 
         await firebase.firestore().collection('users').doc(user.uid).set({
-          userId: user.uid,  // Menyimpan userId
-          name: name,        // Menyimpan nama pengguna
-          email: user.email,
-          isAdmin: false,    // Atur ini ke true jika ini adalah akun admin
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          userId: user.uid,  // simpan userId
+          name: name,        // simpan nama pengguna
+          email: user.email, // simpan email
+          isAdmin: false,    // jenis akun, boleh diatur jadi admin jika yang daftar adalah admin
+          createdAt: firebase.firestore.FieldValue.serverTimestamp() // waktu pendaftaran
         });
 
-        navigation.navigate('UserHome'); // Arahkan ke UserHome setelah pendaftaran
+        navigation.navigate('UserHome'); // pindah ke UserHome setelah pendaftaran
       })
       .catch(error => setErrorMessage(error.message));
   };
 
-  // Fungsi untuk menghapus pesan kesalahan saat pengguna mulai mengetik
+  // fungsi for hapus pesan kesalahan saat pengguna mulai mengetik
   const clearErrorMessage = () => {
     if (errorMessage) {
       setErrorMessage(null);
@@ -47,23 +47,22 @@ const SignUpScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {/* Tambahkan ikon di atas input */}
       <Image
-        source={require('../assets/ibricon.png')} // Ganti dengan nama file ikon Anda
+        source={require('../assets/ibricon.png')} // ikon logo
         style={styles.icon}
       />
       <TextInput
-        placeholder="Nama Pengguna"  // Input untuk nama pengguna
+        placeholder="Nama Pengguna"  // input untuk nama pengguna
         value={name}
         onChangeText={setName}
-        onFocus={clearErrorMessage} // Menghapus pesan kesalahan saat fokus
+        onFocus={clearErrorMessage}
         style={styles.input}
       />
       <TextInput
         placeholder="Email"
         value={email}
         onChangeText={setEmail}
-        onFocus={clearErrorMessage} // Menghapus pesan kesalahan saat fokus
+        onFocus={clearErrorMessage}
         style={styles.input}
         autoCapitalize="none"
       />
@@ -71,7 +70,7 @@ const SignUpScreen = ({ navigation }) => {
         placeholder="Kata Sandi"
         value={password}
         onChangeText={setPassword}
-        onFocus={clearErrorMessage} // Menghapus pesan kesalahan saat fokus
+        onFocus={clearErrorMessage}
         style={styles.input}
         secureTextEntry
       />
@@ -79,7 +78,7 @@ const SignUpScreen = ({ navigation }) => {
         placeholder="Konfirmasi Kata Sandi"
         value={confirmPassword}
         onChangeText={setConfirmPassword}
-        onFocus={clearErrorMessage} // Menghapus pesan kesalahan saat fokus
+        onFocus={clearErrorMessage}
         style={styles.input}
         secureTextEntry
       />
@@ -95,14 +94,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center', // Pusatkan konten secara horizontal
+    alignItems: 'center',
     padding: 20,
     backgroundColor: '#f9f9f9',
   },
   icon: {
-    width: 150, // Sesuaikan ukuran ikon
-    height: 150, // Sesuaikan ukuran ikon
-    marginBottom: 30, // Tambahkan jarak di bawah ikon
+    width: 150,
+    height: 150,
+    marginBottom: 30,
   },
   input: {
     height: 50,
@@ -112,20 +111,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginBottom: 10,
     backgroundColor: '#f7f7f7',
-    width: '100%', // Buat input mengambil lebar penuh
+    width: '100%',
   },
   button: {
-    width: '100%', // Mengatur lebar tombol
-    height: 50, // Tinggi tombol
-    backgroundColor: colors.secondary, // Warna latar belakang tombol
-    justifyContent: 'center', // Pusatkan teks secara vertikal
-    alignItems: 'center', // Pusatkan teks secara horizontal
-    borderRadius: 5, // Sudut membulat
-    marginBottom: 15, // Jarak di bawah tombol
+    width: '100%',
+    height: 50,
+    backgroundColor: colors.secondary,
+    justifyContent: 'center',
+    alignItems: 'center', 
+    borderRadius: 5,
+    marginBottom: 15,
   },
   buttonText: {
-    color: '#ffffff', // Warna teks tombol
-    fontSize: 16, // Ukuran font
+    color: '#ffffff',
+    fontSize: 16,
   },
   errorText: {
     color: 'red',

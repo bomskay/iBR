@@ -163,8 +163,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     borderRadius: 5,
     elevation: 2,
-    flexDirection: 'column', // Mengatur card agar konten berada dalam kolom (vertikal)
-    justifyContent: 'flex-start',  // Menjaga konten di atas
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
   },
   textContainer: {
     justifyContent: 'center',
@@ -185,8 +185,8 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 10,  // Memberikan jarak di atas tombol
-    alignSelf: 'center',  // Menjaga tombol di tengah card
+    marginTop: 10,
+    alignSelf: 'center',
   },
   deleteButtonText: {
     color: 'red',
